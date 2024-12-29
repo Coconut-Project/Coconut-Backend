@@ -8,14 +8,21 @@ import os
 
 load_dotenv()
 
-db_username = os.getenv("DB_USERNAME")
-db_password = os.getenv("DB_PASSWORD")
-db_host = os.getenv("DB_HOST")
-db_name = os.getenv("DB_NAME")
+# db_username = os.getenv("DB_USERNAME")
+# db_password = os.getenv("DB_PASSWORD")
+# db_host = os.getenv("DB_HOST")
+# db_name = os.getenv("DB_NAME")
 
-URL_DATABASE = f"postgresql://{db_username}:{db_password}@{db_host}/{db_name}"
+# URL_DATABASE = f"postgresql://{db_username}:{db_password}@{db_host}/{db_name}"
 
-engine = create_engine(URL_DATABASE)
+EXTERNAL_DATABASE_URL = os.getenv("EXTERNAL_DATABASE_URL")
+
+if not EXTERNAL_DATABASE_URL:
+    raise ValueError(
+        "EXTERNAL_DATABASE_URL n'est pas défini dans les variables d'environnement"
+    )
+
+engine = create_engine(EXTERNAL_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -30,4 +37,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
