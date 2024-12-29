@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.handlers import ENDPOINTS, fetch_data, new_instance_table
@@ -21,7 +22,9 @@ def edit_db():
 
 # Set up the scheduler
 scheduler = BackgroundScheduler()
-trigger = CronTrigger(hour=19, minute=17)  # trigger l'actualisation à une certaine heure
+trigger = CronTrigger(
+    day_of_week="mon", hour=0, minute=0
+)  # trigger l'actualisation à une certaine heure
 scheduler.add_job(edit_db, trigger)
 scheduler.start()
 
@@ -35,8 +38,10 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
 
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
 origins = [
-    "http://localhost:3000",
+    FRONTEND_URL,
 ]
 
 app.add_middleware(
@@ -59,4 +64,4 @@ app.include_router(auth.router)
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
-#run server with : uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+# run server with : uvicorn main:app --host 0.0.0.0 --port 8000 --reload
